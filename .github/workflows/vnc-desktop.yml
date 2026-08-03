@@ -18,10 +18,14 @@ jobs:
             -p 6080:6080 \
             dorowu/ubuntu-desktop-lxde-vnc
 
-      - name: Expose via Pinggy
+      - name: Expose via Pinggy SSH Tunnel
         run: |
-          echo "Starting Pinggy tunnel..."
-          curl -p https://pinggy.io/link?port=6080
+          echo "Starting Pinggy Tunnel..."
+          # This establishes a background SSH tunnel to pinggy.io for port 6080
+          ssh -o StrictHostKeyChecking=no -R 0:localhost:6080 a.pinggy.io &
+          
+          # Wait a few seconds for the tunnel to initialize and print the public URL
+          sleep 5
           
           # Keep workflow alive for 2 hours
           sleep 7200
