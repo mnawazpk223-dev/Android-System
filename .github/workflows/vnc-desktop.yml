@@ -1,23 +1,24 @@
-name: VNC Desktop via Cloudflare Tunnel
+name: Android Desktop via Cloudflare Tunnel
 
 on:
   workflow_dispatch:
 
 jobs:
-  vnc:
+  android-vnc:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Start Ubuntu LXDE VNC Container
+      - name: Start Android Container
         run: |
+          # Running an Android container with web streaming support (e.g., budtmo/docker-android or alternative)
           docker run -d \
-            --name ubuntu-vnc \
-            -p 6080:80 \
-            -p 5900:5900 \
-            --shm-size=2gb \
-            dorowu/ubuntu-desktop-lxde-vnc:latest
+            --name android-container \
+            --privileged \
+            -p 6080:6080 \
+            -p 5555:5555 \
+            budtmo/docker-android-x86-11.0
 
       - name: Install Cloudflared
         run: |
@@ -25,13 +26,12 @@ jobs:
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/cloudflared
 
-      - name: Expose VNC via Cloudflare Tunnel
+      - name: Expose Android via Cloudflare Tunnel
         run: |
           echo "===================================================="
-          echo "Your VNC web desktop is available at the URL below:"
+          echo "Your Android web desktop is available at the URL below:"
           echo "===================================================="
-          # Forcing 127.0.0.1 prevents the IPv6 connection reset error
           cloudflared tunnel --url http://127.0.0.1:6080 &
           
-          # Keep the workflow alive so you can access the container
+          # Keep the workflow alive for 2 hours
           sleep 7200
