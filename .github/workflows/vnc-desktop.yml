@@ -12,13 +12,15 @@ jobs:
 
       - name: Start Android Container
         run: |
-          # Running an Android container with web streaming support (e.g., budtmo/docker-android or alternative)
           docker run -d \
             --name android-container \
             --privileged \
+            --device /dev/kvm \
             -p 6080:6080 \
             -p 5555:5555 \
-            budtmo/docker-android-x86-11.0
+            -e WEB_VNC=true \
+            -e EMULATOR_DEVICE="Samsung Galaxy S10" \
+            budtmo/docker-android:emulator_11.0
 
       - name: Install Cloudflared
         run: |
