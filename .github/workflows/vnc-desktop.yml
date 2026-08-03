@@ -1,0 +1,32 @@
+name: VNC Desktop Environment
+
+on:
+  workflow_dispatch: # Allows you to manually trigger it from the Actions tab
+
+jobs:
+  vnc_desktop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Start Desktop VNC Container
+        run: |
+          docker run -d \
+            --name android-vnc-container \
+            -p 5900:5900 \
+            -p 6080:6080 \
+            dorowu/ubuntu-desktop-lxde-vnc
+
+      - name: Expose via Ngrok or LocalTunnel
+        run: |
+          echo "Installing LocalTunnel to expose VNC to the web..."
+          sudo npm install -g localtunnel
+          
+          echo "===================================================="
+          echo "Access your VNC Desktop via the URL below:"
+          lt --port 6080 &
+          echo "===================================================="
+          
+          # Keep workflow alive for 2 hours
+          sleep 7200
