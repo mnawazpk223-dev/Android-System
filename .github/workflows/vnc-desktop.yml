@@ -1,35 +1,37 @@
-name: VNC Desktop Environment
+name: VNC Desktop via Cloudflare Tunnel
 
 on:
   workflow_dispatch:
 
 jobs:
-  vnc_desktop:
+  vnc:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Start Desktop VNC Container
+      - name: Start Ubuntu LXDE VNC Container
         run: |
           docker run -d \
-            --name android-vnc-container \
+            --name ubuntu-vnc \
+            -p 6080:80 \
             -p 5900:5900 \
-            -p 6080:6080 \
-            dorowu/ubuntu-desktop-lxde-vnc
+            --shm-size=2gb \
+            dorowu/ubuntu-desktop-lxde-vnc:latest
 
-      - name: Install Cloudflare Tunnel (cloudflared)
+      - name: Install Cloudflared
         run: |
           curl -L --output cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x cloudflared
-          sudo mv cloudflared /usr/local/bin/
+          sudo mv cloudflared /usr/local/bin/cloudflared
 
       - name: Expose VNC via Cloudflare Tunnel
         run: |
           echo "===================================================="
           echo "Your VNC web desktop is available at the URL below:"
           echo "===================================================="
-          cloudflared tunnel --url http://localhost:6080 &
+          # Forcing 127.0.0.1 prevents the IPv6 connection reset error
+          cloudflared tunnel --url http://127.0.0.1:6080 &
           
-          # Keep workflow alive for 2 hours
+          # Keep the workflow alive so you can access the container
           sleep 7200
