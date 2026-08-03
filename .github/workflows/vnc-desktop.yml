@@ -1,7 +1,7 @@
 name: VNC Desktop Environment
 
 on:
-  workflow_dispatch: # Allows you to manually trigger it from the Actions tab
+  workflow_dispatch:
 
 jobs:
   vnc_desktop:
@@ -18,15 +18,10 @@ jobs:
             -p 6080:6080 \
             dorowu/ubuntu-desktop-lxde-vnc
 
-      - name: Expose via Ngrok or LocalTunnel
+      - name: Expose via Pinggy
         run: |
-          echo "Installing LocalTunnel to expose VNC to the web..."
-          sudo npm install -g localtunnel
-          
-          echo "===================================================="
-          echo "Access your VNC Desktop via the URL below:"
-          lt --port 6080 &
-          echo "===================================================="
+          echo "Starting Pinggy tunnel..."
+          curl -p https://pinggy.io/link?port=6080
           
           # Keep workflow alive for 2 hours
           sleep 7200
